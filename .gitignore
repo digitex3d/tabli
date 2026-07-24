@@ -1,0 +1,5 @@
+/tabli
+*.tbl
+.*.lock
+.*.tmp.*
+.idea/
