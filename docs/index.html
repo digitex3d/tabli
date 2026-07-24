@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>tabli(1) — self-contained tables for LLM agents</title>
+<meta name="description" content="tabli: a ~40 KB executable file that is its own database — engine, data and manual in one. Zero config, zero dependencies, built for LLM agents.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%2310140F'/%3E%3Ctext x='3' y='12' font-family='monospace' font-size='11' fill='%237BC98A'%3Et%3C/text%3E%3C/svg%3E">
+<style>
+  :root {
+    --paper: #FAFAF8;
+    --ink: #1A1A18;
+    --muted: #6B6B66;
+    --exec: #0B6B2E;
+    --term-bg: #10140F;
+    --term-fg: #D6E2CF;
+    --term-green: #7BC98A;
+    --term-dim: #8A9484;
+    --rule: #D8D8D2;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", "DejaVu Sans Mono", Menlo, Consolas, monospace;
+    --serif: Charter, Georgia, "Times New Roman", serif;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--serif);
+    font-size: 17px;
+    line-height: 1.6;
+  }
+  .page { max-width: 880px; margin: 0 auto; padding: 0 24px 96px; }
+
+  /* troff running header */
+  .man-header {
+    display: flex; justify-content: space-between;
+    font-family: var(--mono); font-size: 13px; letter-spacing: .04em;
+    padding: 20px 0 14px; border-bottom: 1px solid var(--rule);
+    color: var(--muted);
+  }
+  .man-header b { color: var(--ink); font-weight: 600; }
+
+  /* sections: hanging heads, troff-style */
+  section { margin-top: 56px; }
+  @media (min-width: 780px) {
+    section { display: grid; grid-template-columns: 170px 1fr; gap: 0 28px; }
+    section > h2 { grid-column: 1; }
+    section > .sec-body { grid-column: 2; }
+  }
+  h2 {
+    font-family: var(--mono); font-size: 13px; font-weight: 700;
+    letter-spacing: .12em; color: var(--ink);
+    padding-top: 4px;
+  }
+  h2::after { content: ""; display: block; width: 34px; height: 2px; background: var(--exec); margin-top: 8px; }
+  .sec-body > p + p { margin-top: 14px; }
+  .sec-body em { font-style: italic; }
+  a { color: var(--exec); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  a:hover { text-decoration-thickness: 2px; }
+  code, .mono { font-family: var(--mono); font-size: .86em; }
+  p code { background: #EFEFEA; padding: 1px 5px; border-radius: 3px; }
+
+  /* NAME as hero */
+  .name-hero { margin-top: 64px; }
+  .name-hero h1 {
+    font-family: var(--mono); font-weight: 700;
+    font-size: clamp(30px, 6vw, 52px); letter-spacing: -.02em; line-height: 1.15;
+  }
+  .name-hero h1 .dash { color: var(--muted); font-weight: 400; }
+  .name-hero h1 .desc { font-weight: 400; }
+  .tagline {
+    margin-top: 18px; font-style: italic; font-size: clamp(18px, 2.6vw, 22px);
+    color: var(--muted); max-width: 34em;
+  }
+  .hero-links { margin-top: 26px; display: flex; gap: 14px; flex-wrap: wrap; }
+  .hero-links a {
+    font-family: var(--mono); font-size: 14px; text-decoration: none;
+    border: 1.5px solid var(--ink); padding: 9px 18px; color: var(--ink);
+    transition: background .15s, color .15s;
+  }
+  .hero-links a.primary { background: var(--ink); color: var(--paper); }
+  .hero-links a:hover { background: var(--exec); border-color: var(--exec); color: #fff; }
+
+  /* terminal inset — like a screenshot pasted into a printed manual */
+  .terminal {
+    background: var(--term-bg); color: var(--term-fg);
+    font-family: var(--mono); font-size: 14px; line-height: 1.75;
+    padding: 22px 24px; border-radius: 6px;
+    box-shadow: 0 2px 0 var(--rule), 0 10px 30px rgba(20,25,18,.14);
+    overflow-x: auto; white-space: pre; min-height: 340px;
+  }
+  .terminal .ps1 { color: var(--term-green); font-weight: 600; }
+  .terminal .out { color: var(--term-fg); }
+  .terminal .cmt { color: var(--term-dim); }
+  .terminal .mark { color: var(--term-green); }
+  .caret {
+    display: inline-block; width: 8px; height: 15px; vertical-align: -2px;
+    background: var(--term-green); animation: blink 1s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  .term-caption { font-size: 14px; color: var(--muted); margin-top: 10px; font-style: italic; }
+
+  /* pull quote */
+  .pull {
+    margin: 26px 0 8px; padding-left: 18px; border-left: 3px solid var(--exec);
+    font-size: clamp(19px, 2.8vw, 24px); font-style: italic; line-height: 1.4;
+  }
+
+  /* file layout figure */
+  .layout-fig {
+    font-family: var(--mono); font-size: 13px; line-height: 1.6;
+    background: #F1F1EC; border: 1px solid var(--rule); border-radius: 6px;
+    padding: 18px 20px; overflow-x: auto; white-space: pre; margin-top: 16px;
+  }
+  .layout-fig .off { color: var(--muted); }
+  .layout-fig .lbl { color: var(--exec); }
+
+  /* commands list */
+  dl.cmds { margin-top: 4px; }
+  dl.cmds dt {
+    font-family: var(--mono); font-size: 14px; font-weight: 600;
+    margin-top: 18px; white-space: pre-wrap;
+  }
+  dl.cmds dt .verb { color: var(--exec); }
+  dl.cmds dd { margin: 4px 0 0; color: var(--ink); }
+  dl.cmds dd p { font-size: 16px; }
+
+  ul.plain { list-style: none; }
+  ul.plain li { margin-top: 12px; padding-left: 20px; position: relative; }
+  ul.plain li::before { content: "·"; position: absolute; left: 4px; color: var(--exec); font-weight: 700; }
+
+  .kv { font-family: var(--mono); font-size: 14px; }
+  .footer {
+    margin-top: 80px; padding-top: 18px; border-top: 1px solid var(--rule);
+    display: flex; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+    font-family: var(--mono); font-size: 12.5px; color: var(--muted);
+  }
+  :focus-visible { outline: 2px solid var(--exec); outline-offset: 3px; }
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .caret { animation: none; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="man-header" aria-hidden="true">
+    <span><b>TABLI(1)</b></span><span>User Commands</span><span><b>TABLI(1)</b></span>
+  </div>
+
+  <header class="name-hero">
+    <h1>tabli <span class="dash">—</span> <span class="desc">self&#8209;contained tables for LLM&nbsp;agents</span></h1>
+    <p class="tagline">Built for users with no memory, no eyes, and a token budget.</p>
+    <div class="hero-links">
+      <a class="primary" href="https://github.com/digitex3d/tabli">View on GitHub</a>
+      <a href="#synopsis">Watch it work ↓</a>
+    </div>
+  </header>
+
+  <section id="synopsis">
+    <h2>SYNOPSIS</h2>
+    <div class="sec-body">
+      <div class="terminal" id="term" aria-label="Terminal demo of tabli"></div>
+      <p class="term-caption">A real session. The table answers because the table is the program.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>DESCRIPTION</h2>
+    <div class="sec-body">
+      <p>A <code>.tbl</code> file is <em>engine, data and manual in a single executable</em>. Run it bare and it prints its own grammar. There is no server, no schema, no install step, no dependency — a table is a ~40&nbsp;KB file you can copy anywhere, and it keeps answering.</p>
+      <p class="pull">Delete tabli, and your tables won&rsquo;t even notice.</p>
+      <p>The engine writes are atomic (temp&nbsp;+&nbsp;<code>rename</code>), serialized by a lock, integrity-checked with crc32. Records are plain text in the same grammar you type — <code>strings backlog.tbl</code> shows your data, readable, at the end of the binary.</p>
+      <div class="layout-fig"><span class="off">offset 0</span>      ┌────────────────────────────────┐
+             │ <span class="lbl">ELF engine</span>  (~40 KB)          │  the program itself
+<span class="off">engine size</span>  ├────────────────────────────────┤
+             │ <span class="lbl">header</span>  (64 bytes)            │  magic · count · last id · crc32
+<span class="off">+64</span>          ├────────────────────────────────┤
+             │ <span class="lbl">records</span> — plain text lines    │  id=7 title='fix lock' status=open
+<span class="off">EOF</span>          └────────────────────────────────┘</div>
+    </div>
+  </section>
+
+  <section>
+    <h2>COMMANDS</h2>
+    <div class="sec-body">
+      <dl class="cmds">
+        <dt><span class="verb">a</span>  ./t.tbl a title='fix lock' status=open</dt>
+        <dd><p>Add a record — free <code>key=value</code> fields, no schema. Echoes the record with its new id.</p></dd>
+        <dt><span class="verb">q</span>  ./t.tbl q status=open prio&gt;1</dt>
+        <dd><p>Filter with <code>= != &gt; &lt; &gt;= &lt;= ~</code>. Output caps itself to protect the caller&rsquo;s context window; <code>count</code> answers for near-zero tokens.</p></dd>
+        <dt><span class="verb">g</span> / <span class="verb">s</span> / <span class="verb">d</span>  ./t.tbl s 7 status=done if status=open</dt>
+        <dd><p>Get, set, delete. <code>if</code> is compare-and-swap: a stale belief becomes a teachable error, not silent corruption.</p></dd>
+        <dt><span class="verb">next</span>  ./t.tbl next status=open set status=claimed by=me</dt>
+        <dd><p>Atomic take. Two agents calling concurrently always receive different records — a race-free work queue with no orchestrator.</p></dd>
+        <dt><span class="verb">cursor</span> / <span class="verb">diff</span>  ./t.tbl diff 23-23-aa3e1624-1784903603</dt>
+        <dd><p>Delta sync: an agent waking up with no memory pays ten lines, not the whole table.</p></dd>
+      </dl>
+    </div>
+  </section>
+
+  <section>
+    <h2>DESIGN</h2>
+    <div class="sec-body">
+      <ul class="plain">
+        <li><strong>One grammar everywhere.</strong> Stored form = input form = output form. Query results paste straight back into commands.</li>
+        <li><strong>Errors teach.</strong> Every error contains the correct usage — an agent self-corrects on the next call.</li>
+        <li><strong>Engine-owned clock.</strong> <code>created_at</code>/<code>updated_at</code> come from the engine, never the agent: one field of truth that cannot be hallucinated.</li>
+        <li><strong>Mechanism, not policy.</strong> The engine holds only what needs atomicity, the clock, the lock. Everything else is a field convention on top.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>SECURITY</h2>
+    <div class="sec-body">
+      <p><strong>The one rule:</strong> execute only <code>.tbl</code> files you created. A foreign table is an untrusted binary — inspect it with <code>strings</code> instead (the records are plain text). Output is always shell-safe quoted, so stored data can never smuggle <code class="mono">$(commands)</code> into an agent&rsquo;s next call.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>FILES</h2>
+    <div class="sec-body">
+      <p class="kv">tabli.c&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;~900 lines of C, zero dependencies, Linux (x86-64 · ARM64)<br>
+      skill/tabli/&nbsp;&nbsp;&nbsp;self-contained Claude Code skill: prebuilt engine + source fallback</p>
+      <p style="margin-top:14px">Install for your agents: <code>cp -r skill/tabli ~/.claude/skills/tabli</code> — done. That is the whole setup.</p>
+    </div>
+  </section>
+
+  <section>
+    <h2>AUTHOR</h2>
+    <div class="sec-body">
+      <p>Giuseppe Federico &nbsp;·&nbsp; <a href="https://github.com/digitex3d/tabli/blob/main/LICENSE">MIT license</a> &nbsp;·&nbsp; <a href="https://github.com/digitex3d/tabli">github.com/digitex3d/tabli</a></p>
+    </div>
+  </section>
+
+  <div class="footer">
+    <span>The file is the database. There is no step two.</span>
+    <span>This page, like tabli, makes zero external requests.</span>
+  </div>
+</div>
+
+<script>
+(function () {
+  var lines = [
+    ["cmd", "tabli init backlog.tbl"],
+    ["cmt", "# created backlog.tbl (timestamps on) — now talk to the file itself"],
+    ["cmd", "./backlog.tbl a title='ship v1' status=open prio=5"],
+    ["out", "id=1 title='ship v1' status=open prio=5 created_at=2026-07-24T14:12:05Z"],
+    ["cmd", "./backlog.tbl next status=open set status=claimed by=agent-2"],
+    ["out", "id=1 title='ship v1' status=claimed prio=5 updated_by=agent-2"],
+    ["cmd", "rm -rf tabli/        # delete the whole project"],
+    ["cmd", "./backlog.tbl q"],
+    ["out", "id=1 title='ship v1' status=claimed prio=5"],
+    ["cmt", "# 1 record            <- the file didn't notice"]
+  ];
+  var term = document.getElementById("term");
+  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function render(line) {
+    var span = document.createElement("span");
+    if (line[0] === "cmd") {
+      var p = document.createElement("span");
+      p.className = "ps1"; p.textContent = "$ ";
+      term.appendChild(p);
+      span.className = "out";
+    } else {
+      span.className = line[0] === "cmt" ? "cmt" : "out";
+    }
+    term.appendChild(span);
+    return span;
+  }
+  function nl() { term.appendChild(document.createTextNode("\n")); }
+
+  if (reduced) {
+    lines.forEach(function (l) { render(l).textContent = l[1]; nl(); });
+    return;
+  }
+  var caret = document.createElement("span");
+  caret.className = "caret";
+  var li = 0;
+  function nextLine() {
+    if (li >= lines.length) { term.appendChild(caret); return; }
+    var line = lines[li++];
+    var span = render(line);
+    if (line[0] === "cmd") {
+      var ci = 0;
+      term.appendChild(caret);
+      (function type() {
+        if (ci < line[1].length) {
+          span.textContent += line[1].charAt(ci++);
+          setTimeout(type, 26 + Math.random() * 40);
+        } else {
+          caret.remove(); nl();
+          setTimeout(nextLine, 220);
+        }
+      })();
+    } else {
+      span.textContent = line[1]; nl();
+      setTimeout(nextLine, line[0] === "cmt" ? 420 : 180);
+    }
+  }
+  setTimeout(nextLine, 500);
+})();
+</script>
+</body>
+</html>
