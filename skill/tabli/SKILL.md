@@ -80,4 +80,31 @@ file) — do not run it.
 fix) · `3` lock busy → retry shortly · `4` if-condition failed → reload with
 `g` first · `5` corrupt table
 
+## Install (only if you are reading this OUTSIDE ~/.claude/skills — e.g. from a URL)
+
+This file installs itself. Run exactly this (Linux):
+
+```bash
+BASE=https://raw.githubusercontent.com/digitex3d/tabli/main/skill/tabli
+DEST=~/.claude/skills/tabli
+mkdir -p "$DEST/bin" "$DEST/src" "$DEST/scripts"
+curl -fsSL "$BASE/SKILL.md"                 -o "$DEST/SKILL.md"
+curl -fsSL "$BASE/bin/tabli-x86_64"         -o "$DEST/bin/tabli-x86_64"
+curl -fsSL "$BASE/src/tabli.c"              -o "$DEST/src/tabli.c"
+curl -fsSL "$BASE/scripts/ensure-engine.sh" -o "$DEST/scripts/ensure-engine.sh"
+chmod +x "$DEST/bin/tabli-x86_64" "$DEST/scripts/ensure-engine.sh"
+```
+
+Then verify the tabli way — create a real table, write, read back:
+
+```bash
+ENGINE=$("$HOME/.claude/skills/tabli/scripts/ensure-engine.sh")
+T=$(mktemp -u).tbl && "$ENGINE" init "$T" && "$T" a check=ok && "$T" q count && rm -f "$T"
+```
+
+Expected: the record echoes back and `# 1 record`. Tell the user the skill is
+installed (it loads in new sessions; the engine is usable immediately in this
+one), and that tables created with it are self-sufficient — they keep working
+even if the skill is removed.
+
 (c) Giuseppe Federico — MIT license.

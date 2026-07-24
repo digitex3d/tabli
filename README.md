@@ -129,18 +129,22 @@ Reserved words: `id`, `by`, `if`, `set`, `limit`, `count`, `ts`,
 - A `.tbl` is an executable: run only tables you created. Treat foreign
   tables as data (see [SECURITY.md](SECURITY.md)).
 
-## Agent skill (Claude Code)
+## Agent skill (Claude Code) — one-line install
 
-The repo ships a self-contained skill in [`skill/tabli/`](skill/tabli/) —
-instructions, a prebuilt x86-64 engine, and the source for on-the-fly
-compilation on other architectures. Install it by copying the directory:
+Paste this into Claude Code:
 
 ```
-cp -r skill/tabli ~/.claude/skills/tabli
+Read https://raw.githubusercontent.com/digitex3d/tabli/main/skill/tabli/SKILL.md and follow its Install section
 ```
 
-From then on any agent on the machine can create and use `.tbl` files; tables
-keep working even if the skill is removed.
+That's it: the skill's manual carries its own installer — Claude reads it,
+fetches the four files into `~/.claude/skills/tabli`, and verifies the install
+by creating a real table and reading it back. (The skill ships a prebuilt
+x86-64 engine plus the source, compiled on-the-fly for other architectures.)
+
+Prefer doing it by hand? `cp -r skill/tabli ~/.claude/skills/tabli` from a
+clone does the same. Either way, tables created afterwards are self-sufficient:
+they keep working even if the skill is removed.
 
 ## Build & test
 
