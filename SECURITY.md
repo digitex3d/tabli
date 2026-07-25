@@ -1,15 +1,15 @@
 # Security model
 
-tabbli's design is unusual — data files are executables — so its trust model is
+tabeli's design is unusual — data files are executables — so its trust model is
 worth stating explicitly.
 
 ## The one rule
 
 **Execute only tables you created. Treat any other `.tbl` as data.**
 
-A `.tbl` file found on disk may be a genuine tabbli table or a binary that
+A `.tbl` file found on disk may be a genuine tabeli table or a binary that
 merely looks like one. No amount of in-engine verification can protect you if
-you execute a malicious file: the decision happens before tabbli's code runs.
+you execute a malicious file: the decision happens before tabeli's code runs.
 The engine can operate on a table passed as data without executing it (planned
 `verify` verb will compare a table's engine bytes against a trusted engine);
 until then, inspect foreign tables with `strings` or a hex viewer — the record

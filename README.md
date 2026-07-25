@@ -1,11 +1,11 @@
-# tabbli
+# tabeli
 
 **A self-contained table for LLM agents: engine, data and manual in a single executable file.**
 
 *Built for users with no memory, no eyes, and a token budget.*
 
 ```
-$ tabbli init backlog.tbl
+$ tabeli init backlog.tbl
 $ ./backlog.tbl a title='fix locking' status=open prio=2
 id=1 title='fix locking' status=open prio=2 created_at=2026-07-24T14:12:05Z
 $ ./backlog.tbl q status=open
@@ -14,7 +14,7 @@ id=1 title='fix locking' status=open prio=2
 ```
 
 A `.tbl` file **is** its own database engine. Copy it anywhere, run it bare and it
-prints its own manual. Delete the tabbli project — every table you created keeps
+prints its own manual. Delete the tabeli project — every table you created keeps
 working, because everything it needs lives inside the file itself.
 
 Created by **Giuseppe Federico** ([giuseppefeder@gmail.com](mailto:giuseppefeder@gmail.com)).
@@ -28,7 +28,7 @@ fragile (agents doing surgery on markdown tables), or too race-prone
 agent systems — lost coordination, stale state, forgotten context — are mostly
 *infrastructure* failures, not intelligence failures.
 
-tabbli is that missing infrastructure, designed for an unusual user: **the user
+tabeli is that missing infrastructure, designed for an unusual user: **the user
 is an LLM**. Every design choice follows from that.
 
 - **One grammar everywhere.** The stored form, the input form and the output
@@ -134,15 +134,15 @@ Reserved words: `id`, `by`, `if`, `set`, `limit`, `count`, `ts`,
 Paste this into Claude Code:
 
 ```
-Read https://raw.githubusercontent.com/digitex3d/tabbli/main/skill/tabbli/SKILL.md and follow its Install section
+Read https://raw.githubusercontent.com/digitex3d/tabeli/main/skill/tabeli/SKILL.md and follow its Install section
 ```
 
 That's it: the skill's manual carries its own installer — Claude reads it,
-fetches the four files into `~/.claude/skills/tabbli`, and verifies the install
+fetches the four files into `~/.claude/skills/tabeli`, and verifies the install
 by creating a real table and reading it back. (The skill ships a prebuilt
 x86-64 engine plus the source, compiled on-the-fly for other architectures.)
 
-Prefer doing it by hand? `cp -r skill/tabbli ~/.claude/skills/tabbli` from a
+Prefer doing it by hand? `cp -r skill/tabeli ~/.claude/skills/tabeli` from a
 clone does the same. Either way, tables created afterwards are self-sufficient:
 they keep working even if the skill is removed.
 

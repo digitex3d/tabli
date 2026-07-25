@@ -1,4 +1,4 @@
-/* tabbli v1 — a self-contained table: this executable carries its own data.
+/* tabeli v1 — a self-contained table: this executable carries its own data.
  *
  * Copyright (c) 2026 Giuseppe Federico <giuseppefeder@gmail.com>
  * SPDX-License-Identifier: MIT — see LICENSE. This notice must be preserved.
@@ -36,10 +36,10 @@
 #include <time.h>
 #include <unistd.h>
 
-#define ENGINE_VERSION "tabbli v1"
+#define ENGINE_VERSION "tabeli v1"
 #define FMT_VERSION 1
 #define HDR_SIZE 64
-#define MAGIC "TABBLI01" /* 8 bytes */
+#define MAGIC "TABELI01" /* 8 bytes */
 #define MAX_DATA (64u << 20)
 #define MAX_FIELDS 64
 #define DEF_LIMIT 100
@@ -403,14 +403,14 @@ static void tab_load(Tab *t) {
     if (fstat(fd, &st) != 0) die(5, "# error: stat failed: %s", strerror(errno));
     off_t esz = elf_size_fd(fd);
     if (esz < 0 || esz > st.st_size)
-        die(5, "# error: %s is not a tabbli file (bad ELF layout)", t->path);
+        die(5, "# error: %s is not a tabeli file (bad ELF layout)", t->path);
     t->engine_size = esz;
     if (st.st_size == esz) { t->is_seed = 1; close(fd); return; }
     if (st.st_size < esz + HDR_SIZE)
         die(5, "# error: %s: truncated header — corrupt table", t->path);
     unsigned char hb[HDR_SIZE];
     if (xpread(fd, hb, HDR_SIZE, esz) != HDR_SIZE || hdr_unpack(hb, &t->h) != 0)
-        die(5, "# error: %s: no tabbli header found — not a table, or corrupt", t->path);
+        die(5, "# error: %s: no tabeli header found — not a table, or corrupt", t->path);
     if (t->h.version != FMT_VERSION)
         die(5, "# error: table format v%u, this engine speaks v%u", t->h.version, FMT_VERSION);
     if (t->h.data_len > MAX_DATA)
