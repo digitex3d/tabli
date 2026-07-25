@@ -1,6 +1,6 @@
-# Contributing to tabli
+# Contributing to tabbli
 
-Thanks for your interest! tabli is small on purpose — please read this before
+Thanks for your interest! tabbli is small on purpose — please read this before
 opening a PR.
 
 ## Ground rules

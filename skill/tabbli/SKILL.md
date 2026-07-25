@@ -1,9 +1,9 @@
 ---
-name: tabli
+name: tabbli
 description: Self-contained table files (.tbl) for persistent agent state — backlogs, notes, work queues, shared state across sessions and parallel agents. Use when you need to persist structured key=value records, coordinate multiple agents on shared work (atomic take, compare-and-swap), or sync only what changed between sessions (cursor/diff). Each table is a single executable file carrying its own engine, data and manual.
 ---
 
-# tabli — self-contained tables for agents
+# tabbli — self-contained tables for agents
 
 A `.tbl` file is **engine + data + manual in one executable**. Tables you create
 keep working even if this skill is deleted — everything lives in the file.
@@ -14,8 +14,8 @@ keep working even if this skill is deleted — everything lives in the file.
 ENGINE=$(<this-skill-dir>/scripts/ensure-engine.sh)
 ```
 
-The script prints the path to `bin/tabli-<arch>` (x86_64 prebuilt; other
-architectures are compiled on first use from `src/tabli.c`, needs `cc`).
+The script prints the path to `bin/tabbli-<arch>` (x86_64 prebuilt; other
+architectures are compiled on first use from `src/tabbli.c`, needs `cc`).
 Linux only.
 
 ## Create a table
@@ -85,20 +85,20 @@ fix) · `3` lock busy → retry shortly · `4` if-condition failed → reload wi
 This file installs itself. Run exactly this (Linux):
 
 ```bash
-BASE=https://raw.githubusercontent.com/digitex3d/tabli/main/skill/tabli
-DEST=~/.claude/skills/tabli
+BASE=https://raw.githubusercontent.com/digitex3d/tabbli/main/skill/tabbli
+DEST=~/.claude/skills/tabbli
 mkdir -p "$DEST/bin" "$DEST/src" "$DEST/scripts"
 curl -fsSL "$BASE/SKILL.md"                 -o "$DEST/SKILL.md"
-curl -fsSL "$BASE/bin/tabli-x86_64"         -o "$DEST/bin/tabli-x86_64"
-curl -fsSL "$BASE/src/tabli.c"              -o "$DEST/src/tabli.c"
+curl -fsSL "$BASE/bin/tabbli-x86_64"         -o "$DEST/bin/tabbli-x86_64"
+curl -fsSL "$BASE/src/tabbli.c"              -o "$DEST/src/tabbli.c"
 curl -fsSL "$BASE/scripts/ensure-engine.sh" -o "$DEST/scripts/ensure-engine.sh"
-chmod +x "$DEST/bin/tabli-x86_64" "$DEST/scripts/ensure-engine.sh"
+chmod +x "$DEST/bin/tabbli-x86_64" "$DEST/scripts/ensure-engine.sh"
 ```
 
-Then verify the tabli way — create a real table, write, read back:
+Then verify the tabbli way — create a real table, write, read back:
 
 ```bash
-ENGINE=$("$HOME/.claude/skills/tabli/scripts/ensure-engine.sh")
+ENGINE=$("$HOME/.claude/skills/tabbli/scripts/ensure-engine.sh")
 T=$(mktemp -u).tbl && "$ENGINE" init "$T" && "$T" a check=ok && "$T" q count && rm -f "$T"
 ```
 

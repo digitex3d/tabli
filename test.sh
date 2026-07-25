@@ -1,9 +1,9 @@
 #!/bin/bash
-# tabli smoke-test suite: builds nothing, expects ./tabli to exist (make first).
+# tabbli smoke-test suite: builds nothing, expects ./tabbli to exist (make first).
 set -u
 DIR=$(mktemp -d)
 trap 'rm -rf "$DIR"' EXIT
-cp tabli "$DIR/seed"
+cp tabbli "$DIR/seed"
 cd "$DIR"
 
 PASS=0
